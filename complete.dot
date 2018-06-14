@@ -1,4 +1,7 @@
 digraph {
+
+	rankdir=LR;
+
 	tm_recheckpoint_new_task -> tm_recheckpoint;
 	restore_tm_user_regs -> tm_recheckpoint;
 	fp_unavailable_tm	-> restore_tm_sigcontexts;
@@ -12,7 +15,6 @@ digraph {
 	sys_sigreturn		->restore_tm_user_regs[label="32 bits"];
 
 	__switch_to_tm		-> tm_recheckpoint_new_task;
-	__switch_to_tm		-> tm_enable;
 
 	restore_tm_sigcontexts  -> tm_recheckpoint;	
 	
@@ -23,8 +25,13 @@ digraph {
 	restore_tm_sigcontexts	-> tm_enable;
 	tm_abort_check		-> tm_enable;
 	tm_flush_hash_page	-> tm_enable;
-	tm_recheckpoint		-> tm_enable;
-	tm_recheckpoint		-> __tm_recheckpoint;
+	__switch_to_tm		-> tm_enable;
+	restore_tm_user_regs	-> tm_enable;
+	tm_recheckpoint		-> __tm_recheckpoint
+
+
+	flush_hash_page		-> tm_flush_hash_page;
+	flush_hash_hugepage	-> tm_flush_hash_page;
 
 	// restore_spr 
 	tm_recheckpoint_new_task -> tm_restore_sprs;
@@ -48,11 +55,125 @@ digraph {
 	fp_unavailable_tm -> 	tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
 	altivec_unavailable_tm->tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
 	vsx_unavailable_tm ->   tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
-	tm_reclaim_current ->   tm_enable;
+	fp_unavailable_common	-> fp_unavailable_tm;
+	altivec_unavailable_common -> altivec_unavailable_tm;
+	vsx_unavailable_common ->   vsx_unavailable_tm;
+	
+	
+	/* The syscall_comon is aborted if MSR[TS] is set */
+	ret_from_except_lite	-> restore_tm_state;
+	restore_tm_state	-> tm_recheckpoint;
+	restore_tm_state	-> restore_math;
+
+
+	restore_math 		-> restore_fp;
+	restore_math		-> restore_altivec;
+	restore_math		-> restore_vsx;
+
+	restore_fp		-> tm_active_with_fp;
+	restore_altivec		-> tm_active_with_altivec;
+
+	__switch_to_tm 		-> tm_reclaim_task;
+	__switch_to 		-> __switch_to_tm;
+	arch_dup_task_struct 	-> __switch_to_tm;
 	
 
-	__switch_to_tm -> tm_reclaim_task;
-	__switch_to -> __switch_to_tm;
-	arch_dup_task_struct -> __switch_to_tm;
 
+	emulate_instruction -> tm_abort_check;
+	alignment_exception -> tm_abort_check;
+
+	
+	/* Signal */
+	get_tm_stackpointer	-> tm_reclaim_current[label="TM_CAUSE_SIGNAL"];
+	get_tm_stackpointer	-> setup_tm_sigcontexts;
+	handle_rt_signal64	-> get_tm_stackpointer;
+	handle_rt_signal64	-> setup_tm_sigcontexts;
+	setup_tm_sigcontexts	-> copy_ckfpr_to_user;
+	setup_tm_sigcontexts	-> copy_ckvsx_to_user;
+
+	/* IRQ path */
+	system_call_common	-> ret_from_except_lite;
+	ret_from_except		-> ret_from_except_lite;
+	STD_EXCEPTION_COMMON	-> ret_from_except;
+	system_call_common	-> ret_from_except;
+	ret_from_except_lite	-> ret_from_except;
+	_switch			-> ret_from_except;
+	machine_check_common	-> ret_from_except;
+	large_addr_slb		-> ret_from_except;
+	alignment_common	-> ret_from_except;
+	program_check_common	-> ret_from_except;
+	fp_unavailable_common	-> ret_from_except;
+	h_data_storage_common	-> ret_from_except;
+	hmi_exception_common 	-> ret_from_except;
+	altivec_unavailable_common     -> ret_from_except;
+	vsx_unavailable_common 	-> ret_from_except;
+	soft_nmi_common		-> ret_from_except;
+	instruction_access_common -> ret_from_except;
+
+	/* Give ups
+	giveup_fpu            -> check_if_tm_restore_required;
+	enable_kernel_fp      -> check_if_tm_restore_required;
+	giveup_altivec        -> check_if_tm_restore_required;
+	enable_kernel_altivec -> check_if_tm_restore_required;
+	giveup_vsx            -> check_if_tm_restore_required;
+	enable_kernel_vsx     -> check_if_tm_restore_required;
+	giveup_spe            -> check_if_tm_restore_required;
+	enable_kernel_spe     -> check_if_tm_restore_required;
+	giveup_all            -> check_if_tm_restore_required;
+	*/
+
+/*
+	vsr_get			-> flush_tmregs_to_thread;
+	vsr_set			-> flush_tmregs_to_thread;
+	tm_cgpr_get		-> flush_tmregs_to_thread;
+	tm_cgpr_set		-> flush_tmregs_to_thread;
+	tm_cfpr_get		-> flush_tmregs_to_thread;
+	tm_cfpr_set		-> flush_tmregs_to_thread;
+	tm_cvmx_get		-> flush_tmregs_to_thread;
+	tm_cvmx_set		-> flush_tmregs_to_thread;
+	tm_cvsx_get		-> flush_tmregs_to_thread;
+	tm_cvsx_set		-> flush_tmregs_to_thread;
+	tm_spr_get		-> flush_tmregs_to_thread;
+	tm_spr_set		-> flush_tmregs_to_thread;
+*/
+
+
+	/* Final states */
+	__tm_recheckpoint 	[style=filled, fillcolor=red]
+	tm_reclaim 		[style=filled, fillcolor=red]
+
+	// Context switch
+	__switch_to		[style=filled, fillcolor=yellow]
+	arch_dup_task_struct 	[style=filled, fillcolor=yellow]
+
+	// IRQ
+	fp_unavailable_tm	[style=filled, fillcolor=blue]
+	tm_unavailable		[style=filled, fillcolor=blue]
+	vsx_unavailable_tm	[style=filled, fillcolor=blue]
+	altivec_unavailable_tm	[style=filled, fillcolor=blue]
+	emulate_instruction     [style=filled, fillcolor=blue]
+	alignment_exception     [style=filled, fillcolor=blue]
+
+	// Signal handler
+	sys_sigreturn		[style=filled, fillcolor=green]
+	do_setcontext_tm	[style=filled, fillcolor=green]
+
+
+
+/*
+	//ptrace
+	vsr_get			[style=filled, fillcolor=cyan]
+	vsr_set			[style=filled, fillcolor=cyan] 
+	tm_cgpr_get		[style=filled, fillcolor=cyan] 
+	tm_cgpr_set		[style=filled, fillcolor=cyan] 
+	tm_cfpr_get		[style=filled, fillcolor=cyan] 
+	tm_cfpr_set		[style=filled, fillcolor=cyan] 
+	tm_cvmx_get		[style=filled, fillcolor=cyan] 
+	tm_cvmx_set		[style=filled, fillcolor=cyan] 
+	tm_cvsx_get		[style=filled, fillcolor=cyan] 
+	tm_cvsx_set		[style=filled, fillcolor=cyan] 
+	tm_spr_get		[style=filled, fillcolor=cyan] 
+	tm_spr_set		[style=filled, fillcolor=cyan] 
+
+*/
 }
