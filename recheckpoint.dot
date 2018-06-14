@@ -1,0 +1,9 @@
+digraph {
+	tm_recheckpoint 	 -> __tm_recheckpoint;
+	tm_recheckpoint_new_task -> tm_recheckpoint;
+	restore_tm_state         -> tm_recheckpoint;
+
+	ret_from_except_lite	-> restore_tm_state;
+	__switch_to_tm 		-> tm_recheckpoint_new_task;
+
+}
