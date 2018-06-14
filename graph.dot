@@ -1,0 +1,15 @@
+digraph {
+	tm_reclaim_thread -> 	tm_reclaim;
+
+	tm_reclaim_current -> 	tm_reclaim_thread;
+	tm_reclaim_task -> 	tm_reclaim_thread[label="TM_CAUSE_RESCHED"];
+	start_thread ->		tm_reclaim_current[label="0"];
+	sys_rt_sigreturn -> 	tm_reclaim_current[label="0"];
+	fp_unavailable_tm -> 	tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
+	altivec_unavailable_tm->tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
+	vsx_unavailable_tm ->   tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
+
+	__switch_to_tm -> tm_reclaim_task;
+	__switch_to -> __switch_to_tm;
+	arch_dup_task_struct -> __switch_to_tm;
+}
