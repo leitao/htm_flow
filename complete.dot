@@ -1,0 +1,58 @@
+digraph {
+	tm_recheckpoint_new_task -> tm_recheckpoint;
+	restore_tm_user_regs -> tm_recheckpoint;
+	fp_unavailable_tm	-> restore_tm_sigcontexts;
+	altivec_unavailable_tm  -> tm_recheckpoint;
+	vsx_unavailable_tm	-> tm_recheckpoint;
+
+
+	sys_rt_sigreturn	-> restore_tm_sigcontexts[label="64 bits"];
+
+	do_setcontext_tm	-> restore_tm_user_regs[label="32 bits"];
+	sys_sigreturn		->restore_tm_user_regs[label="32 bits"];
+
+	__switch_to_tm		-> tm_recheckpoint_new_task;
+	__switch_to_tm		-> tm_enable;
+
+	restore_tm_sigcontexts  -> tm_recheckpoint;	
+	
+	
+	/* tm_enable */
+	tm_unavailable		-> tm_enable;
+	tm_reclaim_current	-> tm_enable;
+	restore_tm_sigcontexts	-> tm_enable;
+	tm_abort_check		-> tm_enable;
+	tm_flush_hash_page	-> tm_enable;
+	tm_recheckpoint		-> tm_enable;
+	tm_recheckpoint		-> __tm_recheckpoint;
+
+	// restore_spr 
+	tm_recheckpoint_new_task -> tm_restore_sprs;
+	tm_recheckpoint		-> tm_restore_sprs;
+	tm_unavailable		-> tm_restore_sprs;
+	
+	flush_tmregs_to_thread -> tm_save_sprs;
+	flush_tmregs_to_thread	-> tm_enable;
+	
+	tm_abort_check	-> tm_abort;
+	tm_flush_hash_page -> tm_abort;
+
+
+	tm_reclaim_thread -> 	tm_reclaim;
+
+	tm_reclaim_current -> 	tm_reclaim_thread;
+	tm_reclaim_task -> 	tm_reclaim_thread[label="TM_CAUSE_RESCHED"];
+	tm_reclaim_task -> 	tm_save_sprs;
+	start_thread ->		tm_reclaim_current[label="0"];
+	sys_rt_sigreturn -> 	tm_reclaim_current[label="0"];
+	fp_unavailable_tm -> 	tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
+	altivec_unavailable_tm->tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
+	vsx_unavailable_tm ->   tm_reclaim_current[label="TM_CAUSE_FAC_UNAV"];
+	tm_reclaim_current ->   tm_enable;
+	
+
+	__switch_to_tm -> tm_reclaim_task;
+	__switch_to -> __switch_to_tm;
+	arch_dup_task_struct -> __switch_to_tm;
+
+}
