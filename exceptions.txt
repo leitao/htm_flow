@@ -1,0 +1,15 @@
+STD_EXCEPTION_COMMON            ->
+
+STD_EXCEPTION_COMMON_ASYNC      -> Equal STD_EXCEPTION_COMMON but for CPUs that might be sleeping (therefore need the special idle handling (FINISH_NAP and RUNLATCH_ON)
+
+
+EXC_VIRT_MASKABLE		-> 
+
+EXC_REAL_OOL_MASKABLE		->
+
+
+
+EXCEPTION_COMMON		->
+
+
+BEGIN_FTR_SECTION 		->

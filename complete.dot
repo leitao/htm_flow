@@ -74,6 +74,10 @@ digraph {
 	restore_altivec		-> tm_active_with_altivec;
 
 	__switch_to_tm 		-> tm_reclaim_task;
+	timer_interrupt		-> context_switch;
+	ret_from_except_lite	-> schedule;
+	schedule		-> __switch_to;
+	__schedule		-> context_switch
 	__switch_to 		-> __switch_to_tm;
 	arch_dup_task_struct 	-> __switch_to_tm;
 	

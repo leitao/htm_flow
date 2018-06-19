@@ -1,0 +1,28 @@
+digraph {
+
+	rankdir=LR;
+
+	ret_from_except_lite 	->	resume_kernel ;
+	ret_from_except_lite 	->	restore;
+	ret_from_except_lite 	->	restore_math;
+	ret_from_except_lite 	->	restore_interrupts;
+	ret_from_except_lite 	->	save_nvgprs;
+	ret_from_except_lite 	->	do_notify_resume;
+	ret_from_except_lite 	->	preempt_schedule_irq;
+	ret_from_except_lite 	->	RECONCILE_IRQ_STATE;
+	ret_from_except_lite 	->	fast_exc_return_irq;
+	ret_from_except_lite 	->	SCHEDULE_USER;
+	
+	hardware_interrupt_common ->	EXC_COMMON_ASYNC;
+	decrementer_common	-> 	EXC_COMMON_ASYNC;
+	doorbell_super_common	-> 	EXC_COMMON_ASYNC;
+	h_doorbell_common	-> 	EXC_COMMON_ASYNC;
+	h_virt_irq_common	->	EXC_COMMON_ASYNC;
+	performance_monitor_common ->	EXC_COMMON_ASYNC;
+
+	EXC_COMMON_ASYNC	-> 	STD_EXCEPTION_COMMON_ASYNC;
+	
+	STD_EXCEPTION_COMMON_ASYNC	-> ret_from_except_lite;
+	system_call_exit	-> 	ret_from_except_lite;
+	ret_from_except		-> 	ret_from_except_lite[label="Not TRAP"];
+}

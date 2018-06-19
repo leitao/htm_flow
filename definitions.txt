@@ -1,0 +1,11 @@
+Transaction active = Transaction suspended or Transactional
+
+tm_restore_sprs = Load memory SPRs to registers.
+tm_save_sprs = Save SPR registers to the memory
+tm_enable()  = Enable MSR[TM] in the live MSR register.
+tm_enabled() = MSR[TM] is set.
+
+
+--
+DEFINE  = CONFIG_PPC_TRANSACTIONAL_MEM
+---
