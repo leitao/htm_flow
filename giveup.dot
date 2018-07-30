@@ -1,0 +1,45 @@
+digraph {
+
+	rankdir=LR;
+
+	tm_reclaim_thread	-> giveup_all;
+	__switch_to		-> giveup_all;
+	
+	giveup_all		-> check_if_tm_restore_required;
+	giveup_all		-> __giveup_fpu;
+	giveup_all		->__giveup_altivec;
+
+	giveup_fpu		-> check_if_tm_restore_required;
+	giveup_fpu		-> msr_check_and_set;
+	giveup_fpu		-> msr_check_and_clear;
+	giveup_fpu		-> __giveup_fpu
+
+
+	__giveup_fpu		-> save_fpu;
+	__giveup_fpu		-> "Turn MSR[FP] off for the task"
+
+
+	restore_math		-> restore_fp;
+	restore_math		-> restore_altivec;
+	restore_math		-> restore_vsx;
+
+
+	save_all		-> save_fpu;
+	save_all		-> save_altivec;
+
+	save_fpu		-> SAVE_32FPVSRS;
+	save_altivec		-> SAVE_32VRS
+
+	flush_fp_to_thread	-> preempt_disable;
+	flush_fp_to_thread	-> giveup_fpu;
+	flush_fp_to_thread	-> preempt_enable;
+
+	enable_kernel_fp	-> check_if_tm_restore_required;
+	enable_kernel_fp	->__giveup_fpu;
+
+	restore_fp		-> load_fp_state;
+
+	load_fp_state		-> REST_32FPVSRS;
+	store_fp_state		-> SAVE_32FPVSRS;
+}
+

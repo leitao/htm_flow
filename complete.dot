@@ -2,9 +2,18 @@ digraph {
 
 	rankdir=LR;
 
+	tm_recheckpoint_new_task	-> cpu_has_feature;
+	__switch_to_tm			-> cpu_has_feature;
+	flush_tmregs_to_thread		-> cpu_has_feature;
+	tm_cgpr_active			-> cpu_has_feature;
+	cpu_has_feature			-> cpu_has_feature;
+	facility_unavailable_exception  -> cpu_has_feature;
+	tm_flush_hash_page		-> cpu_has_feature;
+
+
 	tm_recheckpoint_new_task -> tm_recheckpoint;
 	restore_tm_user_regs -> tm_recheckpoint;
-	fp_unavailable_tm	-> restore_tm_sigcontexts;
+	fp_unavailable_tm	-> tm_recheckpoint;
 	altivec_unavailable_tm  -> tm_recheckpoint;
 	vsx_unavailable_tm	-> tm_recheckpoint;
 
@@ -62,7 +71,6 @@ digraph {
 	
 	/* The syscall_comon is aborted if MSR[TS] is set */
 	ret_from_except_lite	-> restore_tm_state;
-	restore_tm_state	-> tm_recheckpoint;
 	restore_tm_state	-> restore_math;
 
 
@@ -180,4 +188,6 @@ digraph {
 	tm_spr_set		[style=filled, fillcolor=cyan] 
 
 */
+
+
 }

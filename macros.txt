@@ -1,0 +1,5 @@
+EXC_REAL_BEGIN(name, start, size)
+	- Define the global symbol for naem
+
+EXC_REAL_END
+	- Just Check size 

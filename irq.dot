@@ -12,6 +12,7 @@ digraph {
 	ret_from_except_lite 	->	RECONCILE_IRQ_STATE;
 	ret_from_except_lite 	->	fast_exc_return_irq;
 	ret_from_except_lite 	->	SCHEDULE_USER;
+	SCHEDULE_USER		-> 	schedule;
 	
 	hardware_interrupt_common ->	EXC_COMMON_ASYNC;
 	decrementer_common	-> 	EXC_COMMON_ASYNC;
@@ -25,4 +26,7 @@ digraph {
 	STD_EXCEPTION_COMMON_ASYNC	-> ret_from_except_lite;
 	system_call_exit	-> 	ret_from_except_lite;
 	ret_from_except		-> 	ret_from_except_lite[label="Not TRAP"];
+
+	"trap 0xc00"		-> 	system_call -> EXC_VIRT_BEGIN;
 }
+

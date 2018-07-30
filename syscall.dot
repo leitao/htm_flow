@@ -1,0 +1,60 @@
+digraph G {
+
+	forcelabels=true;
+	//rankdir=LR;
+	compound=true;
+
+	OXc00 -> EXC_REAL_BEGIN
+	OX4c00 -> EXC_REAL_BEGIN
+
+	EXC_REAL_BEGIN -> SYSCALL_KVM_TEST
+
+	/* SYSCALL_KVM_TEST */
+	subgraph cluster_1 {
+/*		graph [style=filled,
+			color=Gray90]
+
+		node [shape=record,
+			style="rounded,filled"]
+*/
+
+		SYSCALL_KVM_TEST -> INTERRUPT_TO_KERNEL
+		SYSCALL_KVM_TEST -> KVM_TESTPR
+		SYSCALL_KVM_TEST -> HMT_MEDIUM
+
+		KVM_TESTPR -> KVMTEST
+		KVMTEST -> __KVMTEST
+		KVMTEST -> do_kvm_XXhXX
+
+		do_kvm_XXhXX -> do_kvm_EXC_STD_0xc00
+	}
+
+	EXC_REAL_BEGIN -> SYSCALL_FASTENDIAN_TEST
+
+	/* FASTENDIAN */
+	subgraph cluster_2 {
+		SYSCALL_FASTENDIAN_TEST -> XXX
+	}
+
+	EXC_REAL_BEGIN -> SYSCALL_REAL
+	/* SYSCALL REAL */
+	subgraph cluster_3 {
+		SYSCALL_REAL -> LOAD_SYSCALL_HANDLER
+		SYSCALL_REAL -> RFI_TO_KERNEL
+	}
+
+	subgraph cluster_4 {
+		RFI_TO_KERNEL -> system_call_common
+	}
+
+
+	
+
+
+	EXC_REAL_BEGIN [xlabel = "Create the name: instance"]
+	INTERRUPT_TO_KERNEL [label = "\N \n (STF code)"]
+	LOAD_SYSCALL_HANDLER [label ="\N \n (Load kerenl function into a register, later to the SRR0 and later rfid to it"]
+	system_call_common  [label ="\N \n (We got here through a RFID to the kernel"]
+	
+}
+

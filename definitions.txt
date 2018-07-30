@@ -9,3 +9,26 @@ tm_enabled() = MSR[TM] is set.
 --
 DEFINE  = CONFIG_PPC_TRANSACTIONAL_MEM
 ---
+
+give up = Save the registers into the thread.
+restore_math = Restore the registers from the thread
+
+---
+Exceptions:
+	* Enter through EXCEPTION_PROLOG which is a macro that handles the switch from user to kernel space, which requires things like saving the register state of the user process.
+	* Leave through fast_exception_return()
+
+
+Registers:
+	SPRN_SPRG1 = PACA
+
+
+--
+tsk->thread.used_vr ?
+
+__copy_to_user and __put_user
+
+
+----
+
+Signal -> ret_except_lite -> handle_rt_signal64 -> Userspace (sighandler) -> sys_rt_sigreturn -> restore_tm_sigcontexts

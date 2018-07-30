@@ -1,3 +1,17 @@
 Instructions:
 
 	- andc
+
+	- rldicl.
+
+	- ldx
+
+	- mtmsrd XX, 1
+
+== Volatile Registers ==
+
+ * what is on r1? - Stack!?  current_thread_info()
+
+ * r3 - r10: Parameters and return
+ * r12: Function Linkage
+ * LT, CTR, CR and others
