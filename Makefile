@@ -6,3 +6,4 @@ all:
 	dot -Tpdf syscall.dot -o pdf/syscall.pdf
 	dot -Tpdf giveup.dot -o pdf/giveup.pdf
 	dot -Tpdf syscall.dot -o pdf/syscall.pdf
+	dot -Tpdf irq_disable.dot -o pdf/irq_disable.pdf

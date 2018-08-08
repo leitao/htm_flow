@@ -1,0 +1,35 @@
+digraph {
+
+	rankdir=LR;
+
+
+	arch_local_irq_restore -> __hard_irq_disable;
+	arch_local_irq_restore -> __check_irq_replay;
+	arch_local_irq_restore -> __hard_irq_enable;
+	arch_local_irq_save	-> irq_soft_mask_set_return;
+	arch_local_irq_disable	-> arch_local_irq_restore;
+	arch_local_irq_enable -> arch_local_irq_restore;
+
+	local_irq_enable	-> raw_local_irq_enable;
+	local_irq_disable	-> raw_local_irq_disable;
+	local_irq_save		-> raw_local_irq_save;
+	local_irq_restore	->  raw_local_irq_restore;
+
+	irq_soft_mask_set_return -> code1;
+	hard_irq_disable	-> arch_local_irq_disable;
+
+	raw_local_irq_enable	-> arch_local_irq_enable;
+	raw_local_irq_restore	-> arch_local_irq_restore;
+	raw_local_irq_disable	-> arch_local_irq_disable;
+	raw_local_irq_save	-> arch_local_irq_save;
+
+	__hard_irq_disable	-> "__mtmsrd(MSR_RI, 1)"		
+	__hard_irq_enable	-> "__mtmsrd(MSR_EE|MSR_RI, 1)"	
+
+
+
+
+	code1[label="\N load flags and save mask into paca->irq_soft_mask"]
+
+}
+
